@@ -134,8 +134,9 @@
     if (pendingAdvance || !video) return;
     if (lastAdvance.id === shortId && Date.now() - lastAdvance.at < 4000) return;   // already did this Short
     pendingAdvance = true;
-    if (document.hidden && !settings.skipHidden) {
-      document.addEventListener("visibilitychange", onVisible);
+    if (document.hidden) {
+      if (!settings.skipHidden) { document.addEventListener("visibilitychange", onVisible); return; }
+      advance();                        // hidden tabs get throttled timers: do not wait for the delay
       return;
     }
     advanceTimer = setTimeout(advance, settings.delayMs);
