@@ -29,6 +29,8 @@
   let advanceTimer = null;
   let pendingAdvance = false;   // decided to advance but waiting (delay / hidden tab)
   let armed = false;            // true once the current Short has started playing
+  let shortId = "";             // /shorts/<id> we are counting for
+  let lastAdvance = { id: "", at: 0 };   // guard against advancing twice for one Short
   let ui = null;                // inline button elements
 
   // ---------------------------------------------------------------- settings
@@ -61,10 +63,12 @@
     detach();
     video = v; renderer = r;
     if (!video) return;
-    lastTime = 0; loopsDone = 0; watched = 0; armed = false; pendingAdvance = false;
+    resetCounters();
     video.addEventListener("timeupdate", onTime);
     video.addEventListener("ended", onEnded);
     video.addEventListener("playing", onPlaying);
+    video.addEventListener("loadstart", resetCounters);   // Shorts reuse one <video>: a new src is a new Short
+    video.addEventListener("emptied", resetCounters);
     applySettings();
     mountUi();
   }
@@ -75,6 +79,8 @@
       video.removeEventListener("timeupdate", onTime);
       video.removeEventListener("ended", onEnded);
       video.removeEventListener("playing", onPlaying);
+      video.removeEventListener("loadstart", resetCounters);
+      video.removeEventListener("emptied", resetCounters);
       video.loop = true;                       // give YouTube its default back
     }
     video = null; renderer = null;
@@ -89,12 +95,22 @@
   attach();
 
   // ---------------------------------------------------------------- completion rules
-  function onPlaying() { armed = true; }
+  function resetCounters() {
+    cancelAdvance();
+    lastTime = 0; loopsDone = 0; watched = 0; armed = false;
+    shortId = location.pathname;
+    updateRing(0, 1);
+  }
+
+  function onPlaying() { /* arming happens in onTime once playback has really progressed */ }
 
   function onTime() {
     if (!video || !settings.enabled) return;
+    if (location.pathname !== shortId) { resetCounters(); return; }          // moved to another Short
     const t = video.currentTime, d = video.duration || 0;
-    if (armed && t + 0.05 < lastTime && lastTime > Math.max(0, d - 1.5)) {   // wrapped to the start
+    if (!armed) { if (t > 0.3) { armed = true; lastTime = t; } else { lastTime = t; } return; }
+    const justAdvanced = lastAdvance.id === shortId && Date.now() - lastAdvance.at < 4000;
+    if (!justAdvanced && t + 0.05 < lastTime && lastTime > Math.max(0, d - 1.5)) {   // wrapped to the start
       loopsDone += 1;
       if (settings.mode === "loops" && loopsDone >= settings.loops) requestAdvance();
       if (settings.mode === "ended") requestAdvance();                      // loop attr was re-set by YT
@@ -106,7 +122,8 @@
   }
 
   function onEnded() {
-    if (!settings.enabled) return;
+    if (!settings.enabled || !armed) return;
+    if (lastAdvance.id === shortId && Date.now() - lastAdvance.at < 4000) return;
     loopsDone += 1;
     if (settings.mode === "ended" || (settings.mode === "loops" && loopsDone >= settings.loops)) requestAdvance();
     else if (settings.mode === "loops" || settings.mode === "seconds") { video.currentTime = 0; video.play().catch(() => {}); }
@@ -115,6 +132,7 @@
   // ---------------------------------------------------------------- advancing
   function requestAdvance() {
     if (pendingAdvance || !video) return;
+    if (lastAdvance.id === shortId && Date.now() - lastAdvance.at < 4000) return;   // already did this Short
     pendingAdvance = true;
     if (document.hidden && !settings.skipHidden) {
       document.addEventListener("visibilitychange", onVisible);
@@ -138,6 +156,8 @@
   function advance() {
     advanceTimer = null;
     if (!settings.enabled || !isShortsPage()) { pendingAdvance = false; return; }
+    lastAdvance = { id: shortId, at: Date.now() };
+    armed = false;                                           // the next Short must prove itself first
     const btn = document.querySelector("#navigation-button-down button, [aria-label='Next video'], [aria-label='다음 동영상']");
     if (btn) btn.click();
     else document.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", code: "ArrowDown", keyCode: 40, bubbles: true }));
