@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "Shorts Autoplay — Auto-advance to the next Short",
+  "short_name": "Shorts Autoplay",
+  "version": "0.1.0",
+  "description": "YouTube Shorts loop forever by default. This extension moves on to the next Short when the current one ends.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.youtube.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Shorts Autoplay",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "commands": {
+    "toggle-autoplay": {
+      "suggested_key": { "default": "Alt+Shift+A" },
+      "description": "Turn Shorts Autoplay on or off"
+    }
+  }
+}

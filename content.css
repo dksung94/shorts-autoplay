@@ -1,0 +1,55 @@
+/* Shorts Autoplay — inline button in the Shorts action column, and the "Next" toast. */
+
+.sap-btn {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  margin: 8px auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s, transform 0.15s;
+}
+.sap-btn:hover { background: rgba(255, 255, 255, 0.2); }
+.sap-btn.sap-on { color: #fff; }
+.sap-btn .sap-glyph { font-size: 15px; letter-spacing: -2px; line-height: 1; position: relative; z-index: 1; }
+
+.sap-ring { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
+.sap-track { fill: none; stroke: rgba(255, 255, 255, 0.15); stroke-width: 2; }
+.sap-prog {
+  fill: none;
+  stroke: #ff0033;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-dasharray: 97.4;              /* 2 * pi * 15.5 */
+  stroke-dashoffset: 97.4;
+  transition: stroke-dashoffset 0.25s linear;
+}
+.sap-btn:not(.sap-on) .sap-prog { stroke: transparent; }
+
+@keyframes sap-pulse { 0% { transform: scale(1); } 40% { transform: scale(1.18); } 100% { transform: scale(1); } }
+.sap-btn.sap-pulse { animation: sap-pulse 0.35s ease-out; }
+
+.sap-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 12%;
+  transform: translate(-50%, 8px);
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(15, 15, 15, 0.85);
+  color: #f1f1f1;
+  font: 500 13px/1 Roboto, Arial, sans-serif;
+  letter-spacing: 0.3px;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2147483647;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.sap-toast.sap-show { opacity: 1; transform: translate(-50%, 0); }

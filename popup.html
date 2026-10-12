@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Shorts Autoplay</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header class="row head">
+    <div class="brand"><span class="glyph">▸▸</span> Shorts Autoplay</div>
+    <label class="switch" title="Turn autoplay on or off">
+      <input type="checkbox" id="enabled">
+      <span class="slider"></span>
+    </label>
+  </header>
+
+  <section id="settings">
+    <div class="label">Advance when</div>
+    <label class="opt"><input type="radio" name="mode" value="ended"> <span>video ends</span></label>
+    <label class="opt"><input type="radio" name="mode" value="loops"> <span>after <input type="number" id="loops" min="1" max="20" step="1"> loops</span></label>
+    <label class="opt"><input type="radio" name="mode" value="seconds"> <span>after <input type="number" id="seconds" min="5" max="600" step="5"> s</span></label>
+
+    <div class="row gap">
+      <span>Delay before next</span>
+      <select id="delayMs">
+        <option value="0">0 s</option>
+        <option value="500">0.5 s</option>
+        <option value="1000">1 s</option>
+        <option value="2000">2 s</option>
+      </select>
+    </div>
+    <label class="opt"><input type="checkbox" id="skipHidden"> <span>Keep advancing when the tab is hidden</span></label>
+    <label class="opt"><input type="checkbox" id="inlineButton"> <span>Show button in the Shorts player</span></label>
+    <label class="opt"><input type="checkbox" id="toast"> <span>Show "Next" toast</span></label>
+  </section>
+
+  <footer class="row">
+    <span class="muted">Shortcut <kbd id="shortcut">Alt+Shift+A</kbd></span>
+    <a href="#" id="shortcuts" class="muted" title="Change the keyboard shortcut">change</a>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>
